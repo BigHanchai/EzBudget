@@ -15,6 +15,8 @@ public class History {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long historyId;
 
+    private String historyName;
+
     @NotNull
     private Double historyPrice;
 
