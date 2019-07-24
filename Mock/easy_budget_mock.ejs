@@ -1,0 +1,56 @@
+{
+    "imposters": [
+        {
+            "port": "9000",
+            "protocol": "http",
+            "stubs": [
+                {
+                    "predicates": [ <% include protocol/get/all_plan_list/success/all_plan_list_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/get/all_plan_list/success/all_plan_list_responses.ejs %>
+                    ]
+                },
+                {
+                    "predicates": [ <% include protocol/get/action_list_by_plan_ID/success/action_list_by_plan_ID_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/get/action_list_by_plan_ID/success/action_list_by_plan_ID_responses.ejs %>
+                    ]
+                },
+                {
+                    "predicates": [ <% include protocol/get/history_by_plan_ID/success/history_by_plan_ID_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/get/history_by_plan_ID/success/history_by_plan_ID_responses.ejs %>
+                    ]
+                },
+                {
+                    "predicates": [ <% include protocol/get/plan_by_ID/success/plan_by_ID_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/get/plan_by_ID/success/plan_by_ID_responses.ejs %>
+                    ]
+                },
+                {
+                    "predicates": [ <% include protocol/get/plan_list_by_partner_ID/success/plan_list_by_partner_ID_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/get/plan_list_by_partner_ID/success/plan_list_by_partner_ID_responses.ejs %>
+                    ]
+                },
+				{
+                    "predicates": [ <% include protocol/post/create_plan/success/create_plan_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/post/create_plan/success/create_plan_responses.ejs %>
+                    ]
+				},
+				{
+                    "predicates": [ <% include protocol/post/create_action/success/create_action_predicates.ejs %>
+                    ],
+                    "responses": [ <% include protocol/post/create_action/success/create_action_responses.ejs %>
+                    ]
+				},
+                {
+                    "responses": [ <% include error.ejs %>
+                    ]
+                }
+            ]
+        }
+    ]
+}
