@@ -1,18 +1,22 @@
 {
-	"equals": {
-		"method" : "GET",
-		"path": "/api/ezb/action_list/"
-	}
-},
-{
-	"matches": {
-		"headers": {
-			"plan_id": 1
+	"and":[
+	{
+		"equals":{
+			"method" : "GET",
+			"path": "/api/ezb/action_list/"
+		}
+	},
+	{
+		"matches": {
+			"headers": {
+				"plan_id": 1
+			}
+		}
+	},
+	{
+		"exists": {
+			"body": false
 		}
 	}
-},
-{
-    "exists": {
-        "body": false
-    }
+	]
 }

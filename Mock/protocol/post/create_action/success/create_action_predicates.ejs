@@ -1,20 +1,22 @@
 {
-	"equals":{
-				"method" : "POST",
-				"path": "/api/ezb/create_action/"
+	"and":[
+	{
+		"equals":{
+			"method" : "POST",
+			"path": "/api/ezb/create_action/"
+		}
 	},
-	"matches": {
-		"headers": {
+	{
+		"matches": {
+			"headers": {
 			"Content-Type" : "application/json",
 			"plan_id": 1
 		},
 		"body": {
-			"action_plan": [
-			{
 				"action_id": "[0-9]",
 				"action_balance": "[0-9]"
 			}
-			]
 		}
 	}
+	]
 }
