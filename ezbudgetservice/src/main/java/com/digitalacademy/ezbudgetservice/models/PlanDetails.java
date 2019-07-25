@@ -16,7 +16,7 @@ public class PlanDetails {
     private Long planDetailsId;
 
     @NotNull
-    private Double planDetailsPrice;
+    private Double planDetailsBalance;
 
     @NotNull
     private Long planDetailsPlanActionId;

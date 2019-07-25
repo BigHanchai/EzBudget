@@ -3,9 +3,11 @@ package com.digitalacademy.ezbudgetservice.services;
 import com.digitalacademy.ezbudgetservice.models.History;
 import com.digitalacademy.ezbudgetservice.models.Partner;
 import com.digitalacademy.ezbudgetservice.models.Plan;
+import com.digitalacademy.ezbudgetservice.models.PlanDetails;
 import com.digitalacademy.ezbudgetservice.models.response.*;
 import com.digitalacademy.ezbudgetservice.repositories.HistoryRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PartnerRepository;
+import com.digitalacademy.ezbudgetservice.repositories.PlanDetailsRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PlanRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,11 +26,14 @@ public class EzBudgetService {
     private PartnerRepository partnerRepository;
     private PlanRepository planRepository;
     private HistoryRepository historyRepository;
+    private PlanDetailsRepository planDetailsRepository;
 
-    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository, HistoryRepository historyRepository) {
+    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository, HistoryRepository historyRepository , PlanDetailsRepository planDetailsRepository) {
         this.partnerRepository = partnerRepository;
         this.planRepository = planRepository;
         this.historyRepository = historyRepository;
+        this.planDetailsRepository = planDetailsRepository;
+
     }
 
     public GetPartnerResponse getPartner(String citizenId, String password) throws Exception{
@@ -153,6 +158,13 @@ public class EzBudgetService {
         return getHistoryResponse;
     }
 
-
+    public PlanDetails createPlanDetails (Long planId,Long planPartnerId,Long planActionID,Double planBalance) throws Exception{
+        PlanDetails planDetails = new PlanDetails();
+        planDetails.setPlanDetailsPlanId(planId);
+        planDetails.setPlanDetailsPlanPartnerId(planPartnerId);
+        planDetails.setPlanDetailsBalance(planBalance);
+        planDetails.setPlanDetailsPlanActionId(planActionID);
+        return planDetailsRepository.save(planDetails);
+    }
 
 }
