@@ -14,6 +14,9 @@ public class SumActionResponse {
     @JsonProperty("plan_action_id")
     private Long planActionId;
 
+    @JsonProperty("plan_action_name")
+    private String planActionName;
+
     @JsonProperty("sum_balance_action")
     private Double sumBalanceAction;
 }

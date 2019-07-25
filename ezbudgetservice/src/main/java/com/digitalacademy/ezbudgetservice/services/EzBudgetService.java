@@ -136,8 +136,10 @@ public class EzBudgetService {
         ArrayList<SumActionResponse> sumActionResponseList = new ArrayList<>();
         for(int i=0; i<actionList.size(); i++){
             SumActionResponse sumActionResponse = new SumActionResponse();
+            PlanAction planAction = planActionRepository.findAllByPlanActionId(actionList.get(i));
 
             sumActionResponse.setPlanActionId(actionList.get(i));
+            sumActionResponse.setPlanActionName(planAction.getPlanActionName());
             sumActionResponse.setSumBalanceAction(historyRepository.sumAmountByHistoryBalanceByAction(planID,partnerID,actionList.get(i)));
 
             sumActionResponseList.add(sumActionResponse);

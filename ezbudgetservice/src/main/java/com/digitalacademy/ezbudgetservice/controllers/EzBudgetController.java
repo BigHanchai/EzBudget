@@ -117,7 +117,7 @@ public class EzBudgetController {
     }
 
     @PostMapping({"/create_action"})
-    public HttpEntity<ResponseModel> getCreateAction(@Valid @RequestHeader("planID") Long planID, @Valid @RequestHeader("PartnerID") Long partnerID, @RequestBody GetPlanActionListResponse body) throws Exception {
+    public HttpEntity<ResponseModel> getCreateAction(@Valid @RequestHeader("planID") Long planID, @Valid @RequestHeader("partnerID") Long partnerID, @RequestBody GetPlanActionListResponse body) throws Exception {
         try {
             for(int j = 0; j < body.getGetPlanActionResponseArrayList().size(); ++j) {
                 this.ezBudgetService.createPlanDetails(planID, partnerID, ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionId(), ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionBalance());
@@ -136,9 +136,9 @@ public class EzBudgetController {
         try {
             GetPlanDetailsResponse ezBudgetList = ezBudgetService.getPlanDetailsByPlanId(planID,partnerID);
             StatusModel status = new StatusModel(
-                    StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()
+                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status));
+            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
         } catch (Exception e) {
             StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
 
