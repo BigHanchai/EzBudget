@@ -20,14 +20,14 @@ public class GetHistoryResponse {
     @JsonProperty("sum_action")
     private ArrayList<SumActionResponse> sumActionResponses;
 
-    @JsonProperty("history")
-    private ArrayList<HistoryResponse> historyResponses;
+    @JsonProperty("data_history")
+    private ArrayList<DataHistoryResponse> dataHistoryResponses;
 
     public GetHistoryResponse() {
     }
 
-    public GetHistoryResponse(ArrayList<SumActionResponse> sumActionResponses, ArrayList<HistoryResponse> historyResponses) {
+    public GetHistoryResponse(ArrayList<SumActionResponse> sumActionResponses, ArrayList<DataHistoryResponse> dataHistoryResponses) {
         this.sumActionResponses = sumActionResponses;
-        this.historyResponses = historyResponses;
+        this.dataHistoryResponses = dataHistoryResponses;
     }
 }

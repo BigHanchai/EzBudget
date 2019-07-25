@@ -2,10 +2,7 @@ package com.digitalacademy.ezbudgetservice.controllers;
 
 import com.digitalacademy.ezbudgetservice.constants.StatusResponse;
 import com.digitalacademy.ezbudgetservice.exceptions.EzBudgetServiceException;
-import com.digitalacademy.ezbudgetservice.models.Partner;
-import com.digitalacademy.ezbudgetservice.models.Plan;
-import com.digitalacademy.ezbudgetservice.models.ResponseModel;
-import com.digitalacademy.ezbudgetservice.models.StatusModel;
+import com.digitalacademy.ezbudgetservice.models.*;
 import com.digitalacademy.ezbudgetservice.models.response.*;
 import com.digitalacademy.ezbudgetservice.services.EzBudgetService;
 import org.apache.logging.log4j.LogManager;
@@ -159,6 +156,32 @@ public class EzBudgetController {
         try {
             body.setPlanPartnerId(userId);
             ezBudgetService.createPlan(body);
+
+            StatusModel status = new StatusModel(
+                    StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status, body));
+        } catch (Exception e) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+
+            return new ResponseModel(
+                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
+            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/transaction") //create_history
+    public  HttpEntity<ResponseModel> createHistory(@Valid @RequestHeader("planID") Long planID, @RequestHeader("partnerID") Long partnerID, @RequestBody History body) throws Exception{
+        if (body.getHistoryName() == null || body.getHistoryBalance() == null || body.getHistoryPlanActionId() == null ){
+            throw new EzBudgetServiceException(
+                    StatusResponse.GET_BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        try {
+            body.setHistoryPlanId(planID);
+            body.setHistoryPlanPartnerId(partnerID);
+            ezBudgetService.createHistory(body);
 
             StatusModel status = new StatusModel(
                     StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()

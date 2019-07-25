@@ -23,5 +23,7 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     @Query(value = "SELECT sum(History.history_balance) FROM History WHERE History.history_plan_id = :planID AND History.history_plan_partner_id = :partnerID  AND History.history_plan_action_id = :actionID", nativeQuery = true)
     Double sumAmountByHistoryBalanceByAction(@Param("planID")Long planID, @Param("partnerID")Long partnerID, @Param("actionID")Long actionID);
 
+    @Query(value = "SELECT sum(History.history_balance) FROM History WHERE History.history_plan_id = :planID AND History.history_plan_partner_id = :partnerID AND History.history_last_update BETWEEN :dateStart AND :dateEnd", nativeQuery = true)
+    Double selectHistoryWithDate(@Param("planID")Long planID, @Param("partnerID")Long partnerID,@Param("dateStart")String dateStart,@Param("dateEnd")String dateEnd);
 
 }

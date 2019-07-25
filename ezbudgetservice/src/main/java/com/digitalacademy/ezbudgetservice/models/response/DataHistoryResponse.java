@@ -6,20 +6,19 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 
+import java.util.ArrayList;
+
 @Data
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HistoryResponse {
+public class DataHistoryResponse {
 
-    @JsonProperty("history_time")
-    private String  historyTime;
+    @JsonProperty("history_date")
+    private String  historyDate;
 
-    @JsonProperty("history_name")
-    private String  historyName;
+    @JsonProperty("date_sum_balance")
+    private Double dateSumBalance;
 
-    @JsonProperty("plan_action_id")
-    private Long planActionId;
-
-    @JsonProperty("history_balance")
-    private Double historyBalance;
+    @JsonProperty("history")
+    private ArrayList<HistoryResponse> historyResponses;
 }

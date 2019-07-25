@@ -147,21 +147,51 @@ public class EzBudgetService {
 
         getHistoryResponse.setSumActionResponses(sumActionResponseList);
 
-        List<History> historyList = historyRepository.findAllByHistoryPlanIdAndHistoryPlanPartnerIdOrderByHistoryLastUpdateDesc(planID,partnerID);
-        ArrayList<HistoryResponse> historyResponseArrayList = new ArrayList<>();
-        for(int j=0; j<historyList.size(); j++){
-            HistoryResponse historyResponse = new HistoryResponse();
-            historyResponse.setHistoryName(historyList.get(j).getHistoryName());
-            historyResponse.setPlanActionId(historyList.get(j).getHistoryPlanActionId());
-            historyResponse.setHistoryBalance(historyList.get(j).getHistoryBalance());
+        ArrayList<DataHistoryResponse> dataHistoryResponseArrayList = new ArrayList<>();
 
-            String[] arrDate = historyList.get(j).getHistoryLastUpdate().toString().split(" ");
+
+        List<History> historyList = historyRepository.findAllByHistoryPlanIdAndHistoryPlanPartnerIdOrderByHistoryLastUpdateDesc(planID,partnerID);
+        log.info(historyList);
+        ArrayList<String> dupDate = new ArrayList<>();
+
+        boolean newDay = false;
+        ArrayList<HistoryResponse> historyResponseArrayList = new ArrayList<>();
+        for (int i=0; i<historyList.size();i++){
+            DataHistoryResponse dataHistoryResponse = new DataHistoryResponse();
+            String checkDate =historyList.get(i).getHistoryLastUpdate().toString().split(" ")[0];
+
+            if(!dupDate.contains(checkDate)){
+                historyResponseArrayList = new ArrayList<>();
+            }
+
+            HistoryResponse historyResponse = new HistoryResponse();
+            historyResponse.setHistoryName(historyList.get(i).getHistoryName());
+            historyResponse.setPlanActionId(historyList.get(i).getHistoryPlanActionId());
+            historyResponse.setHistoryBalance(historyList.get(i).getHistoryBalance());
+            String[] arrDate = historyList.get(i).getHistoryLastUpdate().toString().split(" ");
             String arrTime = arrDate[1].substring(0,8);
-            historyResponse.setHistoryDate(arrDate[0]);
             historyResponse.setHistoryTime(arrTime);
+
             historyResponseArrayList.add(historyResponse);
+
+            if (dupDate.contains(checkDate)){
+                continue;
+            }
+            else{
+                dupDate.add(checkDate);
+                dataHistoryResponse.setHistoryDate(checkDate);
+                dataHistoryResponse.setDateSumBalance(historyRepository.selectHistoryWithDate(planID,partnerID,historyList.get(i).getHistoryLastUpdate().toString().split(" ")[0],historyList.get(i).getHistoryLastUpdate().toString()));
+                dataHistoryResponse.setHistoryResponses(historyResponseArrayList);
+                dataHistoryResponseArrayList.add(dataHistoryResponse);
+
+            }
         }
-        getHistoryResponse.setHistoryResponses(historyResponseArrayList);
+
+
+
+
+
+        getHistoryResponse.setDataHistoryResponses(dataHistoryResponseArrayList);
         return getHistoryResponse;
     }
 
@@ -190,5 +220,9 @@ public class EzBudgetService {
 
     public Plan createPlan(Plan body){
         return planRepository.save(body);
+    }
+
+    public History createHistory(History body){
+        return historyRepository.save(body);
     }
 }
