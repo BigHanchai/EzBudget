@@ -7,6 +7,7 @@ import com.digitalacademy.ezbudgetservice.models.StatusModel;
 import com.digitalacademy.ezbudgetservice.models.response.GetHistoryResponse;
 import com.digitalacademy.ezbudgetservice.models.response.GetListPlanResponse;
 import com.digitalacademy.ezbudgetservice.models.response.GetPartnerResponse;
+import com.digitalacademy.ezbudgetservice.models.response.GetPlanDetailsResponse;
 import com.digitalacademy.ezbudgetservice.services.EzBudgetService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/ezb")
+@RequestMapping(path = "/esb")
 public class EzBudgetController {
     public static final Logger log = LogManager.getLogger(EzBudgetController.class.getName());
 
@@ -107,6 +108,23 @@ public class EzBudgetController {
     public HttpEntity<ResponseModel> getHistoryDetail(@Valid @RequestHeader("planID") Long planID, @RequestHeader("partnerID") Long partnerID) throws Exception{
         try {
             GetHistoryResponse ezBudgetList = ezBudgetService.getHistoryByPlanId(planID, partnerID);
+            StatusModel status = new StatusModel(
+                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
+            );
+            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
+        }catch (Exception e) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+
+            return new ResponseModel(
+                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
+            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/action_list")//historyDetail
+    public HttpEntity<ResponseModel> getActionList(@Valid @RequestHeader("planID") Long planID) throws Exception{
+        try {
+            GetPlanDetailsResponse ezBudgetList = ezBudgetService.getPlanDetailsByPlanId(planID);
             StatusModel status = new StatusModel(
                     StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
             );
