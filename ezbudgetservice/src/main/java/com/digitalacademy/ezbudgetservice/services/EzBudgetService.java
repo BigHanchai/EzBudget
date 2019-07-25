@@ -3,10 +3,14 @@ package com.digitalacademy.ezbudgetservice.services;
 import com.digitalacademy.ezbudgetservice.models.History;
 import com.digitalacademy.ezbudgetservice.models.Partner;
 import com.digitalacademy.ezbudgetservice.models.Plan;
+import com.digitalacademy.ezbudgetservice.models.PlanDetails;
 import com.digitalacademy.ezbudgetservice.models.response.*;
 import com.digitalacademy.ezbudgetservice.repositories.HistoryRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PartnerRepository;
+import com.digitalacademy.ezbudgetservice.repositories.PlanDetailsRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PlanRepository;
+import com.digitalacademy.ezbudgetservice.models.*;
+import com.digitalacademy.ezbudgetservice.repositories.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -24,11 +28,17 @@ public class EzBudgetService {
     private PartnerRepository partnerRepository;
     private PlanRepository planRepository;
     private HistoryRepository historyRepository;
+    private PlanDetailsRepository planDetailsRepository;
 
-    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository, HistoryRepository historyRepository) {
+    private PlanActionRepository planActionRepository;
+
+    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository, HistoryRepository historyRepository, PlanDetailsRepository planDetailsRepository, PlanActionRepository planActionRepository) {
         this.partnerRepository = partnerRepository;
         this.planRepository = planRepository;
         this.historyRepository = historyRepository;
+        this.planDetailsRepository = planDetailsRepository;
+
+        this.planActionRepository = planActionRepository;
     }
 
     public GetPartnerResponse getPartner(String citizenId, String password) throws Exception{
@@ -153,6 +163,27 @@ public class EzBudgetService {
         return getHistoryResponse;
     }
 
+    public PlanDetails createPlanDetails (Long planId,Long planPartnerId,Long planActionID,Double planBalance) throws Exception{
+        PlanDetails planDetails = new PlanDetails();
+        planDetails.setPlanDetailsPlanId(planId);
+        planDetails.setPlanDetailsPlanPartnerId(planPartnerId);
+        planDetails.setPlanDetailsBalance(planBalance);
+        planDetails.setPlanDetailsPlanActionId(planActionID);
+        return planDetailsRepository.save(planDetails);
+    }
+    public GetPlanDetailsResponse getPlanDetailsByPlanId(Long planId, Long partnerID) throws Exception {
 
+        List<PlanDetails> planDetails = planDetailsRepository.findAllByPlanDetailsPlanIdAndPlanDetailsPlanPartnerId(planId, partnerID);
+        ArrayList<PlanDetailsResponse> planDetailsResponseArrayList = new ArrayList<>();
+        for(int i=0; i<planDetails.size(); i++){
+            PlanDetailsResponse planDetailsResponse = new PlanDetailsResponse();
+            PlanAction planAction = planActionRepository.findAllByPlanActionId(planDetails.get(i).getPlanDetailsPlanActionId());
+            planDetailsResponse.setPlanActionId(planDetails.get(i).getPlanDetailsPlanActionId());
+            planDetailsResponse.setPlanActionName(planAction.getPlanActionName());
+            planDetailsResponse.setPlanDetailsBalance(planDetails.get(i).getPlanDetailsBalance());
+            planDetailsResponseArrayList.add(planDetailsResponse);
+        }
+        return new GetPlanDetailsResponse(planDetailsResponseArrayList);
+    }
 
 }

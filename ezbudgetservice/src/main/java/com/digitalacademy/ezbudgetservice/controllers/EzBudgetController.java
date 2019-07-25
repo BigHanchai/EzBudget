@@ -4,10 +4,7 @@ import com.digitalacademy.ezbudgetservice.constants.StatusResponse;
 import com.digitalacademy.ezbudgetservice.models.Partner;
 import com.digitalacademy.ezbudgetservice.models.ResponseModel;
 import com.digitalacademy.ezbudgetservice.models.StatusModel;
-import com.digitalacademy.ezbudgetservice.models.response.GetHistoryResponse;
-import com.digitalacademy.ezbudgetservice.models.response.GetListPlanResponse;
-import com.digitalacademy.ezbudgetservice.models.response.GetPartnerResponse;
-import com.digitalacademy.ezbudgetservice.models.response.GetPlanDetailsResponse;
+import com.digitalacademy.ezbudgetservice.models.response.*;
 import com.digitalacademy.ezbudgetservice.services.EzBudgetService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,11 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -53,7 +46,7 @@ public class EzBudgetController {
         }
     }
 
-    @GetMapping("/partnerCode")
+    @GetMapping("/partner_code")
     public HttpEntity<ResponseModel> getPartnerByCode(@Valid @RequestHeader("partnerCode") String code) throws Exception{
         try {
             GetPartnerResponse ezBudgetList = ezBudgetService.getPartnerByCode(code);
@@ -121,15 +114,30 @@ public class EzBudgetController {
         }
     }
 
-    @GetMapping("/action_list")//historyDetail
-    public HttpEntity<ResponseModel> getActionList(@Valid @RequestHeader("planID") Long planID) throws Exception{
+    @PostMapping({"/create_action"})
+    public HttpEntity<ResponseModel> getCreateAction(@Valid @RequestHeader("planID") Long planID, @Valid @RequestHeader("planPartnerId") Long planPartnerId, @RequestBody GetPlanActionListResponse body) throws Exception {
         try {
-            GetPlanDetailsResponse ezBudgetList = ezBudgetService.getPlanDetailsByPlanId(planID);
+            for(int j = 0; j < body.getGetPlanActionResponseArrayList().size(); ++j) {
+                this.ezBudgetService.createPlanDetails(planID, planPartnerId, ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionId(), ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionBalance());
+            }
+
+            StatusModel status = new StatusModel(StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status));
+        } catch (Exception var6) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+            return (new ResponseModel(new StatusModel(statusResponse.getCode(), statusResponse.getMessage()))).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/action_list")//historyDetail
+    public HttpEntity<ResponseModel> getActionList(@Valid @RequestHeader("planID") Long planID, @RequestHeader("partnerID") Long partnerID) throws Exception{
+        try {
+            GetPlanDetailsResponse ezBudgetList = ezBudgetService.getPlanDetailsByPlanId(planID,partnerID);
             StatusModel status = new StatusModel(
-                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
+                    StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()
             );
-            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
-        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status));
+        } catch (Exception e) {
             StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
 
             return new ResponseModel(
@@ -137,7 +145,5 @@ public class EzBudgetController {
             ).build(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 }
