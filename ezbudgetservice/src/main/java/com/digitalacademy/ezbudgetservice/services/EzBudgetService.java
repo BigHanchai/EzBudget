@@ -186,4 +186,7 @@ public class EzBudgetService {
         return new GetPlanDetailsResponse(planDetailsResponseArrayList);
     }
 
+    public Plan createPlan(Plan body){
+        return planRepository.save(body);
+    }
 }

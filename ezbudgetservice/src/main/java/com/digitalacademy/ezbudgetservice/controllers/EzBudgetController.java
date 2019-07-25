@@ -1,7 +1,9 @@
 package com.digitalacademy.ezbudgetservice.controllers;
 
 import com.digitalacademy.ezbudgetservice.constants.StatusResponse;
+import com.digitalacademy.ezbudgetservice.exceptions.EzBudgetServiceException;
 import com.digitalacademy.ezbudgetservice.models.Partner;
+import com.digitalacademy.ezbudgetservice.models.Plan;
 import com.digitalacademy.ezbudgetservice.models.ResponseModel;
 import com.digitalacademy.ezbudgetservice.models.StatusModel;
 import com.digitalacademy.ezbudgetservice.models.response.*;
@@ -137,6 +139,31 @@ public class EzBudgetController {
                     StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status));
+        } catch (Exception e) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+
+            return new ResponseModel(
+                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
+            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/create_plan")
+    public  HttpEntity<ResponseModel> createPlan(@Valid @RequestHeader("partnerID") Long userId, @RequestBody Plan body) throws Exception{
+        if (body.getPlanName() == null || body.getPlanBalance() == null || body.getPlanStartDate() == null || body.getPlanEndDate() == null){
+            throw new EzBudgetServiceException(
+                    StatusResponse.GET_BAD_REQUEST,
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+        try {
+            body.setPlanPartnerId(userId);
+            ezBudgetService.createPlan(body);
+
+            StatusModel status = new StatusModel(
+                    StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseModel(status, body));
         } catch (Exception e) {
             StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
 
