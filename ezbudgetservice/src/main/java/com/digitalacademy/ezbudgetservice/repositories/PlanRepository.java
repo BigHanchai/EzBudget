@@ -7,7 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 public interface PlanRepository extends JpaRepository<Plan, Long> {
-    List<Plan> findAllByPlanPartnerId(Long id);
+    List<Plan> findAllByPlanPartnerIdOrderByPlanStartDateDesc(Long id);
+    List<Plan> findAllByPlanPartnerIdOrderByPlanStartDateAsc(Long id);
+    Plan findAllByPlanId(Long id);
     //List<Plan> findByPlanStartDateGreaterThanEqualAndPlanEndDateLessThanEqual(Date toDate);
 
 }

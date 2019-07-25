@@ -4,6 +4,7 @@ import com.digitalacademy.ezbudgetservice.constants.StatusResponse;
 import com.digitalacademy.ezbudgetservice.models.Partner;
 import com.digitalacademy.ezbudgetservice.models.ResponseModel;
 import com.digitalacademy.ezbudgetservice.models.StatusModel;
+import com.digitalacademy.ezbudgetservice.models.response.GetHistoryResponse;
 import com.digitalacademy.ezbudgetservice.models.response.GetListPlanResponse;
 import com.digitalacademy.ezbudgetservice.models.response.GetPartnerResponse;
 import com.digitalacademy.ezbudgetservice.services.EzBudgetService;
@@ -71,23 +72,6 @@ public class EzBudgetController {
     @GetMapping("/plan_summary")//Summary Record
     public HttpEntity<ResponseModel> getPlanByPartner(@Valid @RequestHeader("partnerID") Long id) throws Exception{
         try {
-            GetListPlanResponse ezBudgetList = ezBudgetService.getPlanByPartner(id);
-            StatusModel status = new StatusModel(
-                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
-            );
-            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
-        }catch (Exception e) {
-            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
-
-            return new ResponseModel(
-                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
-            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/plan_list")//Summary Record
-    public HttpEntity<ResponseModel> getPlanNeverDieByPartner(@Valid @RequestHeader("partnerID") Long id) throws Exception{
-        try {
             GetListPlanResponse ezBudgetList = ezBudgetService.getPlanSummaryByPartner(id);
             StatusModel status = new StatusModel(
                     StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
@@ -101,5 +85,41 @@ public class EzBudgetController {
             ).build(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/plan_list")//Nerver die
+    public HttpEntity<ResponseModel> getPlanNeverDieByPartner(@Valid @RequestHeader("partnerID") Long id) throws Exception{
+        try {
+            GetListPlanResponse ezBudgetList = ezBudgetService.getPlanNerverDieByPartner(id);
+            StatusModel status = new StatusModel(
+                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
+            );
+            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
+        }catch (Exception e) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+
+            return new ResponseModel(
+                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
+            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/history")//historyDetail
+    public HttpEntity<ResponseModel> getHistoryDetail(@Valid @RequestHeader("planID") Long planID, @RequestHeader("partnerID") Long partnerID) throws Exception{
+        try {
+            GetHistoryResponse ezBudgetList = ezBudgetService.getHistoryByPlanId(planID, partnerID);
+            StatusModel status = new StatusModel(
+                    StatusResponse.GET_RESPONSE_SUCCESS.getCode(), StatusResponse.GET_RESPONSE_SUCCESS.getMessage()
+            );
+            return ResponseEntity.ok(new ResponseModel(status, ezBudgetList));
+        }catch (Exception e) {
+            StatusResponse statusResponse = StatusResponse.GET_DEATH_SERVER;
+
+            return new ResponseModel(
+                    new StatusModel(statusResponse.getCode(), statusResponse.getMessage())
+            ).build(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

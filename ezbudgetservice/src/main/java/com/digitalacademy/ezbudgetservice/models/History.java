@@ -1,5 +1,6 @@
 package com.digitalacademy.ezbudgetservice.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,7 +19,7 @@ public class History {
     private String historyName;
 
     @NotNull
-    private Double historyPrice;
+    private Double historyBalance;
 
     @NotNull
     private Long historyPlanActionId;
@@ -30,6 +31,8 @@ public class History {
     private Long historyPlanPartnerId;
 
     @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Bangkok")
     @UpdateTimestamp
     private Date historyLastUpdate;
 

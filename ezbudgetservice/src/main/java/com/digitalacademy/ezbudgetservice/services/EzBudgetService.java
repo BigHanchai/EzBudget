@@ -1,20 +1,17 @@
 package com.digitalacademy.ezbudgetservice.services;
 
+import com.digitalacademy.ezbudgetservice.models.History;
 import com.digitalacademy.ezbudgetservice.models.Partner;
 import com.digitalacademy.ezbudgetservice.models.Plan;
-import com.digitalacademy.ezbudgetservice.models.response.GetListPlanResponse;
-import com.digitalacademy.ezbudgetservice.models.response.GetPartnerResponse;
-import com.digitalacademy.ezbudgetservice.models.response.GetPlanResponse;
+import com.digitalacademy.ezbudgetservice.models.response.*;
+import com.digitalacademy.ezbudgetservice.repositories.HistoryRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PartnerRepository;
 import com.digitalacademy.ezbudgetservice.repositories.PlanRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,10 +23,12 @@ public class EzBudgetService {
 
     private PartnerRepository partnerRepository;
     private PlanRepository planRepository;
+    private HistoryRepository historyRepository;
 
-    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository) {
+    public EzBudgetService(PartnerRepository partnerRepository, PlanRepository planRepository, HistoryRepository historyRepository) {
         this.partnerRepository = partnerRepository;
         this.planRepository = planRepository;
+        this.historyRepository = historyRepository;
     }
 
     public GetPartnerResponse getPartner(String citizenId, String password) throws Exception{
@@ -64,17 +63,48 @@ public class EzBudgetService {
         return getPartnerResponse;
     }
 
-    public GetListPlanResponse getPlanByPartner(Long id) throws Exception{
-        List<Plan> planlist = planRepository.findAllByPlanPartnerId(id);
+    public GetListPlanResponse getPlanSummaryByPartner(Long id) throws Exception{
+        List<Plan> planlist = planRepository.findAllByPlanPartnerIdOrderByPlanStartDateDesc(id);
+        ArrayList<GetPlanResponse> getPlanResponseArrayList = new ArrayList<>();
+        Date date= new Date();
+        long today = date.getTime();
+        for (int j = 0; j < planlist.size(); j++) {
+           // log.info(" Start Date: "+planlist.get(j).getPlanStartDate());
+            //log.info("Time Start Date: "+planlist.get(j).getPlanStartDate().getTime());
+            if (planlist.get(j).getPlanEndDate().getTime() <= today ||( planlist.get(j).getPlanStartDate().getTime() <= today && planlist.get(j).getPlanEndDate().getTime() >= today)) {
+                GetPlanResponse getPlanResponse = new GetPlanResponse();
+                getPlanResponse.setPlanId(planlist.get(j).getPlanId());
+                getPlanResponse.setPlanName(planlist.get(j).getPlanName());
+                getPlanResponse.setPlanPrice(planlist.get(j).getPlanBalance());
+                getPlanResponse.setPlanStartDate(planlist.get(j).getPlanStartDate());
+                getPlanResponse.setPlanEndDate(planlist.get(j).getPlanEndDate());
+                getPlanResponseArrayList.add(getPlanResponse);
+            }
+        }
+
+        GetListPlanResponse getListPlanResponse = new GetListPlanResponse(getPlanResponseArrayList);
+
+        return getListPlanResponse;
+    }
+
+    public GetListPlanResponse getPlanNerverDieByPartner(Long id) throws Exception{
+        LocalDate localDate = LocalDate.now();
+        List<Plan> planlist = planRepository.findAllByPlanPartnerIdOrderByPlanStartDateAsc(id);
+        Date date= new Date();
+        long today = date.getTime();
+
         ArrayList<GetPlanResponse> getPlanResponseArrayList = new ArrayList<>();
         for (int j = 0; j < planlist.size(); j++) {
             GetPlanResponse getPlanResponse = new GetPlanResponse();
-            getPlanResponse.setPlanId(planlist.get(j).getPlanId());
-            getPlanResponse.setPlanName(planlist.get(j).getPlanName());
-            getPlanResponse.setPlanPrice(planlist.get(j).getPlanPrice());
-            getPlanResponse.setPlanStartDate(planlist.get(j).getPlanStartDate());
-            getPlanResponse.setPlanEndDate(planlist.get(j).getPlanEndDate());
-            getPlanResponseArrayList.add(getPlanResponse);
+            //log.info("Time End Date: "+planlist.get(j).getPlanEndDate().getTime());
+            if (planlist.get(j).getPlanEndDate().getTime() >= today) {
+                getPlanResponse.setPlanId(planlist.get(j).getPlanId());
+                getPlanResponse.setPlanName(planlist.get(j).getPlanName());
+                getPlanResponse.setPlanPrice(planlist.get(j).getPlanBalance());
+                getPlanResponse.setPlanStartDate(planlist.get(j).getPlanStartDate());
+                getPlanResponse.setPlanEndDate(planlist.get(j).getPlanEndDate());
+                getPlanResponseArrayList.add(getPlanResponse);
+            }
         }
 
         GetListPlanResponse getListPlanResponse = new GetListPlanResponse(getPlanResponseArrayList);
@@ -82,30 +112,47 @@ public class EzBudgetService {
         return getListPlanResponse;
     }
 
-    public GetListPlanResponse getPlanSummaryByPartner(Long id) throws Exception{
-        LocalDate localDate = LocalDate.now();
-        List<Plan> planlist = planRepository.findAllByPlanPartnerId(id);
-        String today = (DateTimeFormatter.ofPattern("yyy-MM-dd").format(localDate));
-        ArrayList<GetPlanResponse> getPlanResponseArrayList = new ArrayList<>();
-        for (int j = 0; j < planlist.size(); j++) {
-//            GetPlanResponse getPlanResponse = new GetPlanResponse();
-//            DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
-//            String strDate = dateFormat.format(planlist.get(j).getPlanEndDate());
-//            String[] strDate_list = strDate.split(" ");
-//            if (strDate_list[0] == today) {
-//                continue;
-//            }else{
-//                getPlanResponse.setPlanId(planlist.get(j).getPlanId());
-//                getPlanResponse.setPlanName(planlist.get(j).getPlanName());
-//                getPlanResponse.setPlanPrice(planlist.get(j).getPlanPrice());
-//                getPlanResponse.setPlanStartDate(planlist.get(j).getPlanStartDate());
-//                getPlanResponse.setPlanEndDate(planlist.get(j).getPlanEndDate());
-//                getPlanResponseArrayList.add(getPlanResponse);
-//            }
+    public GetHistoryResponse getHistoryByPlanId(Long planID, Long partnerID) throws Exception{
+        GetHistoryResponse getHistoryResponse = new GetHistoryResponse();
+
+        Plan plan= planRepository.findAllByPlanId(planID);
+        getHistoryResponse.setPlanName(plan.getPlanName());
+        getHistoryResponse.setPlanBalance(plan.getPlanBalance());
+
+        Double over_all_use = historyRepository.sumAmountByHistoryBalance(planID,partnerID);
+        getHistoryResponse.setOverAllUse(over_all_use);
+
+        List<Long> actionList = historyRepository.selectActionGroupByActionASC(planID,partnerID);
+        ArrayList<SumActionResponse> sumActionResponseList = new ArrayList<>();
+        for(int i=0; i<actionList.size(); i++){
+            SumActionResponse sumActionResponse = new SumActionResponse();
+
+            sumActionResponse.setPlanActionId(actionList.get(i));
+            sumActionResponse.setSumBalanceAction(historyRepository.sumAmountByHistoryBalanceByAction(planID,partnerID,actionList.get(i)));
+
+            sumActionResponseList.add(sumActionResponse);
         }
 
-        GetListPlanResponse getListPlanResponse = new GetListPlanResponse(getPlanResponseArrayList);
+        getHistoryResponse.setSumActionResponses(sumActionResponseList);
 
-        return getListPlanResponse;
+        List<History> historyList = historyRepository.findAllByHistoryPlanIdAndHistoryPlanPartnerIdOrderByHistoryLastUpdateDesc(planID,partnerID);
+        ArrayList<HistoryResponse> historyResponseArrayList = new ArrayList<>();
+        for(int j=0; j<historyList.size(); j++){
+            HistoryResponse historyResponse = new HistoryResponse();
+            historyResponse.setHistoryName(historyList.get(j).getHistoryName());
+            historyResponse.setPlanActionId(historyList.get(j).getHistoryPlanActionId());
+            historyResponse.setHistoryBalance(historyList.get(j).getHistoryBalance());
+
+            String[] arrDate = historyList.get(j).getHistoryLastUpdate().toString().split(" ");
+            String arrTime = arrDate[1].substring(0,8);
+            historyResponse.setHistoryDate(arrDate[0]);
+            historyResponse.setHistoryTime(arrTime);
+            historyResponseArrayList.add(historyResponse);
+        }
+        getHistoryResponse.setHistoryResponses(historyResponseArrayList);
+        return getHistoryResponse;
     }
+
+
+
 }

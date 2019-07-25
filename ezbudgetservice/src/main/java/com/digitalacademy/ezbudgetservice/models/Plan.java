@@ -1,5 +1,6 @@
 package com.digitalacademy.ezbudgetservice.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,15 +22,24 @@ public class Plan {
     private String planName;
 
     @NotNull
-    private Double planPrice;
+    private Double planBalance;
 
     @NotNull
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Bangkok")
     private Date planStartDate;
 
     @NotNull
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Bangkok")
     private Date planEndDate;
 
+
     @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss", timezone="Asia/Bangkok")
     @UpdateTimestamp
     private Date planLastUpdate;
 
