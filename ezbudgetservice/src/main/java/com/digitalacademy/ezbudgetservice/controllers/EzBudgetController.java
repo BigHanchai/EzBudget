@@ -117,10 +117,10 @@ public class EzBudgetController {
     }
 
     @PostMapping({"/create_action"})
-    public HttpEntity<ResponseModel> getCreateAction(@Valid @RequestHeader("planID") Long planID, @Valid @RequestHeader("planPartnerId") Long planPartnerId, @RequestBody GetPlanActionListResponse body) throws Exception {
+    public HttpEntity<ResponseModel> getCreateAction(@Valid @RequestHeader("planID") Long planID, @Valid @RequestHeader("PartnerID") Long partnerID, @RequestBody GetPlanActionListResponse body) throws Exception {
         try {
             for(int j = 0; j < body.getGetPlanActionResponseArrayList().size(); ++j) {
-                this.ezBudgetService.createPlanDetails(planID, planPartnerId, ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionId(), ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionBalance());
+                this.ezBudgetService.createPlanDetails(planID, partnerID, ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionId(), ((GetPlanActionResponse)body.getGetPlanActionResponseArrayList().get(j)).getActionBalance());
             }
 
             StatusModel status = new StatusModel(StatusResponse.GET_CREATED_SUCCESS.getCode(), StatusResponse.GET_CREATED_SUCCESS.getMessage());
